@@ -39,6 +39,14 @@ impl SimpleCoin {
         Ok(())
     }
 
+    #[query]
+    pub fn balance(&self, address: Address) -> Result<u64> {
+        // TODO: return an &Coin<Eerie>
+        let maybe_account = self.balances.get(address)?;
+        let balance = maybe_account.map(|acc| acc.amount).unwrap_or_default();
+        Ok(balance.value)
+    }
+
     pub fn balances_mut(&mut self) -> &mut Map<Address, Coin<Eerie>> {
         &mut self.balances
     }
