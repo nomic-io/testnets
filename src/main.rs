@@ -8,8 +8,13 @@ use coin::{Eerie, SimpleCoin};
 
 use orga::prelude::*;
 
+type App = SignerProvider<NonceProvider<SimpleCoin>>;
+
 #[tokio::main]
 async fn main() {
+    let mut client: TendermintClient<App> =
+        TendermintClient::new("http://localhost:26657").unwrap();
+
     let args: Vec<String> = std::env::args().collect();
     match args
         .iter()
@@ -19,20 +24,25 @@ async fn main() {
     {
         [_, "node"] => {
             tokio::task::spawn_blocking(|| {
-                Node::<SignerProvider<NonceProvider<SimpleCoin>>>::new("simple_coin")
+                Node::<App>::new("simple_coin")
                     .reset()
                     .run()
             })
             .await
             .unwrap();
         }
-        [_, "client"] => {
-            // type WholeApp = SignerProvider<NonceProvider<SimpleCoin>>;
-            // let client: TendermintClient<WholeApp> =
-            //     TendermintClient::new("http://localhost:26657").unwrap();
-            // let mut client = WholeApp::create_client(client);
-            // // let my_address = load_keypair().unwrap().public.to_bytes();
-            // client.transfer([123; 32], 5.into()).await.unwrap();
+        [_, "balance"] => {
+            let my_address = load_keypair().unwrap().public.to_bytes().into();
+            let balance = client.query(
+                <SimpleCoin as Query>::Query::MethodBalance(my_address, vec![]),
+                |state| state.balance(my_address),
+            ).await.unwrap();
+
+            println!("address: {}", my_address);
+            println!("balance: {} EERIE", balance);
+        }
+        [_, "send"] => {
+            client.transfer([123; 32].into(), 5.into()).await.unwrap();
         }
         _ => {
             println!("hit catchall")
