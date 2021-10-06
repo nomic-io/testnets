@@ -27,8 +27,6 @@ impl EerieNet {
             (validator.balance() * self.staking.vp_per_coin)?
         };
 
-        dbg!("voting power:", voting_power);
-
         self.context::<Validators>()
             .ok_or_else(|| failure::format_err!("No validator context available"))?
             .set_voting_power(validator_addr, voting_power.value);

@@ -69,7 +69,10 @@ pub struct SendCmd {
 
 impl SendCmd {
     async fn run(&self) -> Result<()> {
-        rpc_client().accounts.transfer(self.to_addr, self.amount.into()).await
+        rpc_client()
+            .accounts
+            .transfer(self.to_addr, self.amount.into())
+            .await
     }
 }
 
@@ -82,14 +85,19 @@ impl DelegationsCmd {
 
         type EerieQuery = <EerieNet as Query>::Query;
 
-        let delegations = rpc_client().query(
-            EerieQuery::MethodDelegations(my_address, vec![]),
-            |state| state.delegations(my_address),
-        ).await?;
+        let delegations = rpc_client()
+            .query(EerieQuery::MethodDelegations(my_address, vec![]), |state| {
+                state.delegations(my_address)
+            })
+            .await?;
 
-        println!("delegations: {}", delegations.len());
+        println!(
+            "delegated to {} validator{}",
+            delegations.len(),
+            if delegations.len() == 1 { "" } else { "s" }
+        );
         for (validator, amount) in delegations {
-            println!("{}: {} EERIE", validator, amount);
+            println!("- {}: {} EERIE", validator, amount);
         }
 
         Ok(())
@@ -106,10 +114,12 @@ impl BalanceCmd {
         type EerieQuery = <EerieNet as Query>::Query;
         type CoinQuery = <SimpleCoin as Query>::Query;
 
-        let balance = rpc_client().query(
-            EerieQuery::FieldAccounts(CoinQuery::MethodBalance(my_address, vec![])),
-            |state| state.accounts.balance(my_address),
-        ).await?;
+        let balance = rpc_client()
+            .query(
+                EerieQuery::FieldAccounts(CoinQuery::MethodBalance(my_address, vec![])),
+                |state| state.accounts.balance(my_address),
+            )
+            .await?;
 
         println!("address: {}", my_address);
         println!("balance: {} EERIE", balance);
@@ -130,7 +140,9 @@ impl DelegateCmd {
         let validator_addr: [u8; 32] = base64::decode(&self.validator_addr)?
             .try_into()
             .map_err(|_| failure::format_err!("invalid validator address"))?;
-        rpc_client().delegate(validator_addr.into(), self.amount.into()).await
+        rpc_client()
+            .delegate(validator_addr.into(), self.amount.into())
+            .await
     }
 }
 
