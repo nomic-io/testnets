@@ -15,8 +15,18 @@ pub struct SimpleCoin {
 
 impl InitChain for SimpleCoin {
     fn init_chain(&mut self, _ctx: &InitChainCtx) -> Result<()> {
-        // TODO: initial balances
-        self.balances.insert("nomic1cg4t0gpmgn944jpa0dlxa9ke7hz94vajk0qkkasdwhp7e074jx2qktweh2".parse()?, Eerie::mint(Amount::units(1000)))?;
+        // judd
+        self.balances.insert(
+            "nomic1zgu24fl96sf3epzvrwjr94nzw9yfsvququkxlk6v7wr3nazlzvnsudfdnq".parse()?,
+            Eerie::mint(Amount::units(1000)),
+        )?;
+        
+        // matt
+        self.balances.insert(
+            "nomic1cg4t0gpmgn944jpa0dlxa9ke7hz94vajk0qkkasdwhp7e074jx2qktweh2".parse()?,
+            Eerie::mint(Amount::units(1000)),
+        )?;
+
         Ok(())
     }
 }
