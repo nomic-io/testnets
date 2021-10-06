@@ -53,7 +53,9 @@ pub struct StartCmd {}
 impl StartCmd {
     async fn run(&self) -> Result<()> {
         Ok(tokio::task::spawn_blocking(|| {
-            Node::<App>::new("eerienet_data") .run()
+            Node::<App>::new("eerienet_data")
+                .with_genesis("genesis.json")
+                .run()
         })
         .await?)
     }
