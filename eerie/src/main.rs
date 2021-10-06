@@ -55,6 +55,7 @@ impl StartCmd {
         Ok(tokio::task::spawn_blocking(|| {
             Node::<App>::new("eerienet_data")
                 .with_genesis("genesis.json")
+                .peers(&["727ecc6d03e38c3fbadf52683ef697845b49eb0f@68.183.121.60:26656"])
                 .run()
         })
         .await?)
