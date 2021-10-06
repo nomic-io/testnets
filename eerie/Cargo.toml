@@ -6,7 +6,10 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+base64 = "0.13.0"
+clap = "3.0.0-beta.4"
 ed = { git = "https://github.com/nomic-io/ed", rev = "f79dce84a94cc6938946888c52be77aa0fd4fb9c"}
 failure = "0.1.8"
-orga = { git = "https://github.com/nomic-io/orga", rev = "7978131f7d26c53c382d4a453d7f595b1701c23c", features = [ "merk", "abci" ] }
+orga = { path = "../../orga", features = [ "merk", "abci" ] }
+#, git = "https://github.com/nomic-io/orga", rev = "70b11c5b4979370d3fbbde1069e19c6ba3d7b92d", features = [ "merk", "abci" ] }
 tokio = "1.12.0"

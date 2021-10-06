@@ -2,74 +2,89 @@ use super::{Eerie, SimpleCoin};
 use orga::coins::*;
 use orga::prelude::*;
 
-#[derive(State)]
-pub struct AppWithStaking {
-    height: u64,
-    pub simp: SimpleCoin,
+#[derive(State, Query, Call, Client)]
+pub struct EerieNet {
+    pub accounts: SimpleCoin,
     staking: Staking,
 }
 
-impl AppWithStaking {
-    pub fn delegate(&mut self, validator_address: Address, amount: Amount<Eerie>) -> Result<()> {
-        let signer = self
-            .context::<Signer>()
-            .ok_or_else(|| failure::format_err!("No signer context available"))?
-            .signer
-            .ok_or_else(|| failure::format_err!("Delegate calls must be signed"))?;
+impl EerieNet {
+    #[call]
+    pub fn delegate(&mut self, validator_addr: Address, amount: Amount<Eerie>) -> Result<()> {
+        let voting_power = {
+            let signer = self
+                .context::<Signer>()
+                .ok_or_else(|| failure::format_err!("No signer context available"))?
+                .signer
+                .ok_or_else(|| failure::format_err!("Delegate calls must be signed"))?;
+                
+            let mut sender = self.accounts.balances_mut().entry(signer)?.or_default()?;
+            let coins = sender.take(amount)?;
 
-        let mut sender = self.simp.balances_mut().entry(signer)?.or_default()?;
-        let coins = sender.take(amount)?;
-        let mut validator = self.staking.validators.get_mut(validator_address)?;
-        validator.get_mut(signer)?.give(coins)?;
+            let mut validator = self.staking.validators.get_mut(validator_addr)?;
+            validator.get_mut(signer)?.give(coins)?;
+
+            (validator.balance() * self.staking.vp_per_coin)?
+        };
+
+        dbg!("voting power:", voting_power);
+
+        self.context::<Validators>()
+            .ok_or_else(|| failure::format_err!("No validator context available"))?
+            .set_voting_power(validator_addr, voting_power.value);
+
+        Ok(())
+    }
+
+    #[query]
+    pub fn delegations(&self, delegator_address: Address) -> Result<Vec<(Address, Amount<Eerie>)>> {
+        self.staking.validators
+            .iter()?
+            .filter_map(|entry| {
+                let (k, v) = match entry {
+                    Err(e) => return Some(Err(e)),
+                    Ok((k, v)) => (*k, v),
+                };
+                match v.get(delegator_address) {
+                    Err(e) => Some(Err(e)),
+                    Ok(d) => {
+                        if d.balance() == Amount::zero() {
+                            None
+                        } else {
+                            Some(Ok((k, d.balance())))
+                        }
+                    },
+                }
+            })
+            .collect()
+    }
+}
+
+impl InitChain for EerieNet {
+    fn init_chain(&mut self, ctx: &InitChainCtx) -> Result<()> {
+        self.accounts.init_chain(ctx)?;
+        self.staking.vp_per_coin = Amount::one();
         Ok(())
     }
 }
 
-impl EndBlock for AppWithStaking {
-    fn end_block(&mut self, ctx: &EndBlockCtx) -> Result<()> {
-        // Pop front of unbonding queue until we've paid out all the mature
-        // unbonds
-        while let Some(unbond) = self.staking.unbonding_queue.front()? {
-            if unbond.maturity_height <= self.height {
-                let unbond = self.staking.unbonding_queue.pop_front()?.unwrap();
-                let mut unbonder_account = self
-                    .simp
-                    .balances_mut()
-                    .entry(unbond.delegator_address)?
-                    .or_default()?;
-                unbonder_account.add(unbond.coin.amount)?;
-
-                let validator_address = unbond.validator_address;
-                let validator = self.staking.validators.get(validator_address)?;
-
-                let new_voting_power = validator.balance().value;
-                ctx.set_voting_power(validator_address.bytes(), new_voting_power);
-            }
+impl BeginBlock for EerieNet {
+    fn begin_block(&mut self, _ctx: &BeginBlockCtx) -> Result<()> {
+        let balance = self.staking.validators.balance();
+        if balance != 0 {
+            let block_reward: Amount<Eerie> = 10.into();
+            let increase = ((balance + block_reward) / balance)?;
+            self.staking.vp_per_coin = (self.staking.vp_per_coin / increase)?;
+            self.staking.validators.give(Eerie::mint(block_reward))?;
         }
 
         Ok(())
     }
 }
 
-impl BeginBlock for AppWithStaking {
-    fn begin_block(&mut self, ctx: &BeginBlockCtx) -> Result<()> {
-        self.height = ctx.height;
-        let block_reward = Eerie::mint(10);
-        self.staking.validators.give(block_reward)
-    }
-}
-
-#[derive(State)]
-pub struct Unbond {
-    pub coin: Coin<Eerie>,
-    pub delegator_address: Address,
-    pub validator_address: Address,
-    pub maturity_height: u64,
-}
-
 type Delegators = Pool<Address, Coin<Eerie>, Eerie>;
 #[derive(State)]
 pub struct Staking {
+    pub vp_per_coin: Amount<Eerie>,
     pub validators: Pool<Address, Delegators, Eerie>,
-    pub unbonding_queue: Deque<Unbond>,
 }

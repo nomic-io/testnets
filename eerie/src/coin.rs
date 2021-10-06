@@ -4,7 +4,7 @@ use orga::coins::*;
 use orga::encoding::{Decode, Encode};
 use orga::prelude::*;
 
-#[derive(Encode, Decode)]
+#[derive(Encode, Decode, Debug)]
 pub struct Eerie;
 impl Symbol for Eerie {}
 
@@ -16,7 +16,7 @@ pub struct SimpleCoin {
 impl InitChain for SimpleCoin {
     fn init_chain(&mut self, _ctx: &InitChainCtx) -> Result<()> {
         // TODO: initial balances
-        self.balances.insert([0; 32].into(), Eerie::mint(100))?;
+        self.balances.insert("nomic1cg4t0gpmgn944jpa0dlxa9ke7hz94vajk0qkkasdwhp7e074jx2qktweh2".parse()?, Eerie::mint(Amount::units(1000)))?;
         Ok(())
     }
 }
