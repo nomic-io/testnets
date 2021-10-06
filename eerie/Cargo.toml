@@ -10,5 +10,5 @@ base64 = "0.13.0"
 clap = "3.0.0-beta.4"
 ed = { git = "https://github.com/nomic-io/ed", rev = "f79dce84a94cc6938946888c52be77aa0fd4fb9c"}
 failure = "0.1.8"
-orga = { git = "https://github.com/nomic-io/orga", rev = "185821aed74b6d33f305291f8c4e42b48b0a0755", features = [ "merk", "abci" ] }
+orga = { git = "https://github.com/nomic-io/orga", rev = "a7d3ca7670d68f8fa07c9d94d23172d4f8f86802", features = [ "merk", "abci" ] }
 tokio = "1.12.0"
