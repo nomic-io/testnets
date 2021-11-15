@@ -70,7 +70,7 @@ impl BeginBlock for FreshNet {
     fn begin_block(&mut self, _ctx: &BeginBlockCtx) -> Result<()> {
         let balance = self.staking.validators.balance();
         if balance != 0 {
-            let block_reward: Amount<Fresh> = 10.into();
+            let block_reward: Amount<Fresh> = 4_000.into();
             let increase = ((balance + block_reward) / balance)?;
             self.staking.vp_per_coin = (self.staking.vp_per_coin / increase)?;
             self.staking.validators.give(Fresh::mint(block_reward))?;

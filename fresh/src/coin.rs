@@ -17,7 +17,7 @@ impl InitChain for SimpleCoin {
         // matt
         self.balances.insert(
             "nomic1cg4t0gpmgn944jpa0dlxa9ke7hz94vajk0qkkasdwhp7e074jx2qktweh2".parse().unwrap(),
-            ((100_000, std::marker::PhantomData),)
+            ((1_000_000_000u64, std::marker::PhantomData),)
         )?;
 
         Ok(())

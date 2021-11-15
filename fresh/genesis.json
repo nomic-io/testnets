@@ -29,15 +29,6 @@
       },
       "power": "10",
       "name": "matt"
-    },
-    {
-      "address": "57F46E5543DEF98408BF400A6CCA54EAF0254337",
-      "pub_key": {
-        "type": "tendermint/PubKeyEd25519",
-        "value": "gTccWNyBQEY+Tu6UVMlnpdodQTeStHvMsiQZKsuvMtE="
-      },
-      "power": "10",
-      "name": "judd"
     }
   ],
   "app_hash": ""
