@@ -65,6 +65,11 @@ which has an active full node).
 
 Ask the Nomic team for some coins in the Telegram and include your address.
 
-Once you have received coins, you can delegate to your node with `fresh delegate
-<validator_address> <amount>`. The validator address is the base64 pubkey value
+Once you have received coins, you can delegate to your node with:
+
+```bash
+fresh delegate <validator_address> <amount>
+```
+
+The validator address is the base64 pubkey value
 found under `"validator_info"` in the output of http://localhost:26657/status.
