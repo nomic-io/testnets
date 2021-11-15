@@ -1,0 +1,14 @@
+[package]
+name = "fresh"
+version = "0.2.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+base64 = "0.13.0"
+clap = "3.0.0-beta.5"
+ed = { git = "https://github.com/nomic-io/ed", rev = "6d327abacf0c6068ceaed36fb67410ae65f2abbe" }
+failure = "0.1.8"
+orga = { git = "https://github.com/nomic-io/orga", rev = "9493479eeebcc39bf6b1e638f2c870104af50ed6", features = ["merk", "abci"] }
+tokio = "1.12.0"
