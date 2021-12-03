@@ -27,6 +27,9 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 # nomic currently requires rust nightly
 rustup default nightly
 
+# install required dependencies (ubuntu)
+sudo apt install build-essential libssl-dev pkg-config clang
+
 # clone
 git clone https://github.com/nomic-io/testnets.git nomic-testnets && cd nomic-testnets
 
